@@ -1,0 +1,7 @@
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/CMakeFiles/RAY.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/CMakeFiles/link_target.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/extern/bitmap_image/CMakeFiles/bitmap_image.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/extern/linalg/CMakeFiles/linalg.dir
+C:/Users/Satyam/Documents/Homework/IFT-3355/TP2/build/extern/pcg32/CMakeFiles/pcg32.dir

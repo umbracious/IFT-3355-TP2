@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Satyam\Documents\Homework\IFT-3355\TP2\extern\bitmap_image\bitmap_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Satyam\Documents\Homework\IFT-3355\TP2\extern\bitmap_image\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93108DD2-EAAF-35A6-B0BC-C907C0B972BF}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
