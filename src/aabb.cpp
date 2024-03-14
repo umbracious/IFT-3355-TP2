@@ -3,7 +3,58 @@
 // @@@@@@ VOTRE CODE ICI
 // Implémenter l'intersection d'un rayon avec un AABB dans l'intervalle décrit.
 bool AABB::intersect(Ray ray, double t_min, double t_max)  {
-       return true;
+
+	// Source: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html
+	double txmin, txmax, tymin, tymax, tzmin, tzmax;
+
+	txmin = (min[0] - ray.origin[0])/ray.direction[0];
+	txmax = (max[0] - ray.origin[0])/ray.direction[0];
+	
+	if (txmin>txmax){ // Swap tx min and max if min > max
+		double tmp = txmin;
+		txmin = txmax;
+		txmax = tmp;
+	}
+	
+	tymin = (min[1] - ray.origin[1])/ray.direction[1];
+	tymax = (max[1] - ray.origin[1])/ray.direction[1];
+
+	if (tymin>tymax){ // Swap ty min and max if min > max
+		double tmp = tymin;
+		tymin = tymax;
+		tymax = tmp;
+	}
+
+	if ((txmin > tymax) || (tymin > txmax)){
+		return false;
+	}
+
+	if (tymin > txmin){
+		txmin = tymin;
+	}
+
+	if (tymax < txmax){
+		txmax = tymax;
+	}
+
+	tzmin = (min[2] - ray.origin[2])/ray.direction[2];
+	tzmax = (max[2] - ray.origin[2])/ray.direction[2];
+
+	if (tzmin>tzmax){ // Swap tz min and max if min > max
+		double tmp = tzmin;
+		tzmin = tzmax;
+		tzmax = tmp;
+	}
+
+	if (tzmin > txmin){
+		txmin = tzmin;
+	}
+
+	if (tzmax < txmax){
+		txmax = tzmax;
+	}
+
+	return true;
 };
 
 // @@@@@@ VOTRE CODE ICI
