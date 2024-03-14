@@ -21,11 +21,11 @@ bool Naive::intersect(Ray ray, double t_min, double t_max, Intersection* hit) {
 	bool ray_hit = false;
 	double closest = t_max;
 
-	for (auto& object : objects){
-		Intersection tmp;
-		if (object->intersect(ray, t_min, closest, &tmp)){
+	for (auto& object : objects){ // Loop through objects
+		Intersection tmp; // Temp intersection
+		if (object->intersect(ray, t_min, closest, &tmp)){ // Recursion
 			ray_hit = true;
-			closest = std::min(closest, tmp.depth);
+			closest = std::min(closest, tmp.depth); // Select new closest depth
 			*hit = tmp;
 		}
 	}
