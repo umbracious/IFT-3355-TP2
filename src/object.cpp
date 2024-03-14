@@ -23,11 +23,26 @@ bool Sphere::local_intersect(Ray ray,
 	double c = length2(ray.origin) - radius*radius;
 	double discriminant = b*b - 4*a*c;
 
+	if (length(ray.origin)<=radius){ // Ray starts from inside sphere
+		return false;
+	}
+
 	if (discriminant<0){ // No intersection
 		return false;
 	}
 
 	else if (discriminant == 0){ // 1 intersection point
+		// Quadratic formula
+		double t = (-b + sqrt(discriminant))/(2*a);
+		if (t > t_min && t < t_max){
+			hit->position = ray.origin + ray.direction*t;
+			hit->depth = t;
+			hit->normal = normalize(hit->position);
+		}
+		return true;
+	}
+
+	else{ // 2 intersection points
 		// Quadratic formula
 		double t1 = (-b + sqrt(discriminant))/(2*a); 
 		double t2 = (-b - sqrt(discriminant))/(2*a);
@@ -46,17 +61,6 @@ bool Sphere::local_intersect(Ray ray,
 			hit->normal = normalize(hit->position);
 		}
 
-		return true;
-	}
-
-	else{ // 2 intersection points
-		// Quadratic formula
-		double t = (-b + sqrt(discriminant))/(2*a);
-		if (t > t_min && t < t_max){
-			hit->position = ray.origin + ray.direction*t;
-			hit->depth = t;
-			hit->normal = normalize(hit->position);
-		}
 		return true;
 	}
 }
@@ -82,7 +86,8 @@ bool Quad::local_intersect(Ray ray,
 
 	double3 normal{0,0,1}; // Z+
 	double denom = dot(normal, ray.direction);
-	if (denom > EPSILON){
+
+	if (denom > EPSILON){ // Ray and square not perpendicular
 		double t = dot(ray.origin, normal)/denom;
 
 		if (t>t_min && t>t_max){
@@ -116,9 +121,109 @@ AABB Quad::compute_aabb() {
 bool Cylinder::local_intersect(Ray ray, 
 							   double t_min, double t_max, 
 							   Intersection *hit)
-{
+{	// Source = https://stackoverflow.com/questions/73866852/ray-cylinder-intersection-formula
 
-    return false;
+	double3 C = {0,half_height,0};
+	double3 V = {0,-1,0};
+
+	// Cylinder cap params
+	double3 normal{0,1,0};
+	double denom = dot(normal, ray.direction);
+	
+	// Cylinder side params
+	double a = length2(ray.direction) - pow(dot(ray.direction,V),2);
+	double b = 2*(dot(ray.direction,ray.origin) - dot(ray.direction,V)*dot(ray.origin,V));
+	double c = length2(ray.origin) - pow(dot(ray.origin,V),2) - pow(radius,2);
+	double discriminant = b*b - 4*a*c;
+
+	bool intersects = false;
+	double t=t_max;
+
+	if (abs(ray.origin[1])<=half_height && sqrt(pow(ray.origin[0],2)+pow(ray.origin[2],2))<=radius){ // Ray origin inside cylinder
+		return false;
+	}
+
+	if (denom>EPSILON){ // Intersection with cylinder caps
+		// Top cap
+		double3 CR0 = C - ray.origin;
+		t = dot(CR0, normal)/denom;
+
+		if (t>t_min && t<t_max){
+			intersects = true;
+			hit->position = ray.origin + ray.direction*t;
+			hit->depth = t;
+			hit->normal = normal;
+		}
+
+		//Bottom cap
+		CR0 = -C - ray.origin;
+		double tmp_t = dot(CR0, -normal)/denom;
+
+		if (tmp_t>t_min && tmp_t<t_max && tmp_t<t){
+			t = tmp_t;
+			intersects = true;
+			hit->position = ray.origin + ray.direction*t;
+			hit->depth = t;
+			hit->normal = -normal;
+		}
+	}
+
+	// Cylinder side
+	if (discriminant<0){ // No intersections
+		return intersects;
+	}
+
+	else if (discriminant == 0){ // 1 intersection point
+		// Quadratic formula
+		double tmp_t = (-b + sqrt(discriminant))/(2*a);
+		double3 hit_pos = ray.origin + ray.direction*tmp_t;
+
+		if (abs(hit_pos[1])<=half_height){ // Hit is on cylinder
+			if (tmp_t > t_min && tmp_t < t_max && tmp_t<t){
+				t = tmp_t;
+				intersects = true;
+				hit->position = ray.origin + ray.direction*t;
+				hit->depth = t;
+				normal = {hit_pos[0],0,hit_pos[2]};
+				hit->normal = normalize(normal);
+			}
+		}
+
+		
+	}
+
+	else if (discriminant > 0){ // 2 intersection points
+		// Quadratic formula
+		double t1 = (-b + sqrt(discriminant))/(2*a); 
+		double t2 = (-b - sqrt(discriminant))/(2*a);
+
+		// t1
+		double3 hit_pos = ray.origin + ray.direction*t1;
+		if (abs(hit_pos[1])<=half_height){ // Hit is on cylinder
+			if (t1 > t_min && t1 < t_max && t1<t){
+				t = t1;
+				intersects = true;
+				hit->position = ray.origin + ray.direction*t;
+				hit->depth = t;
+				normal = {hit_pos[0],0,hit_pos[2]};
+				hit->normal = normalize(normal);
+			}
+		}
+
+		// t2
+		hit_pos = ray.origin + ray.direction*t2;
+		if (abs(hit_pos[1])<=half_height){ // Hit is on cylinder
+			if (t2 > t_min && t2 < t_max && t2<t){
+				t = t2;
+				intersects = true;
+				hit->position = ray.origin + ray.direction*t;
+				hit->depth = t;
+				normal = {hit_pos[0],0,hit_pos[2]};
+				hit->normal = normalize(normal);
+			}
+		}
+	}
+    return intersects;
 }
 
 // @@@@@@ VOTRE CODE ICI
