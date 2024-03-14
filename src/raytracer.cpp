@@ -12,9 +12,9 @@ void Raytracer::render(const Scene& scene, Frame* output)
 	// Calculez les paramètres de la caméra pour les rayons.
 	
 	// Base vectors for basis change
-	double3 up = normalize(scene.camera.up);
 	double3 forward = normalize(scene.camera.center - scene.camera.position);
-	double3 right = normalize(cross(up, forward));
+	double3 right = normalize(cross(scene.camera.up, forward));
+	double3 up = normalize(cross(right, forward)); // guarantees 90 degree angle for up
 	double3 pos = scene.camera.position;
 
 	// Viewport paramters
@@ -52,10 +52,6 @@ void Raytracer::render(const Scene& scene, Frame* output)
 				double3 pixel_pos{-scene.resolution[0]/2 + x + 0.5, scene.resolution[1]/2 - y - 0.5, length(scene.camera.center-scene.camera.position)}; // Pixel center position
 				pixel_pos += double3{-scene.jitter_radius + rand_double()*scene.jitter_radius*2, -scene.jitter_radius + rand_double()*scene.jitter_radius*2, 0}; // Apply jitter to pixel
 				pixel_pos = {pixel_pos[0]/scene.resolution[0]*vp_width, pixel_pos[1]/scene.resolution[1]*vp_height, pixel_pos[2]}; // Stretch to plane
-				
-				if (x<2 && y<2){
-					std::cout<<"p1: ["<<pixel_pos[0]<<","<<pixel_pos[1]<<","<<pixel_pos[2]<<"]";
-				}
 
 				// Basis change
 				double4x4 cam_to_world_matrix{
@@ -69,9 +65,6 @@ void Raytracer::render(const Scene& scene, Frame* output)
 
 				
 				ray.direction = normalize(pixel_pos-ray.origin); // Set ray direction (normalized)
-				if (x<2 && y<2){
-					std::cout<<"p2: ["<<ray.direction[0]<<","<<ray.direction[1]<<","<<ray.direction[2]<<"]";
-				}
 
 				// Initiliaze ray depth
 				double z_depth = scene.camera.z_far;

@@ -78,6 +78,24 @@ bool Quad::local_intersect(Ray ray,
 							double t_min, double t_max, 
 							Intersection *hit)
 {
+	// Source: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection.html
+
+	double3 normal{0,0,1}; // Z+
+	double denom = dot(normal, ray.direction);
+	if (denom > EPSILON){
+		double t = dot(ray.origin, normal)/denom;
+
+		if (t>t_min && t>t_max){
+			double3 p = ray.origin + t*ray.direction; // Intersection on plane
+			if (abs(p[0])<half_size && abs(p[1])<half_size){ // Intersects
+				hit->position =p;
+				hit->depth = t;
+				hit->normal = normal;
+				return true;
+			}
+		}
+	}
+	
 	return false;
 }
 
@@ -99,6 +117,7 @@ bool Cylinder::local_intersect(Ray ray,
 							   double t_min, double t_max, 
 							   Intersection *hit)
 {
+
     return false;
 }
 

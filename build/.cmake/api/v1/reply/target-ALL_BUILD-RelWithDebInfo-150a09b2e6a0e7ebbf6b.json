@@ -20,6 +20,9 @@
 			"id" : "link_target::@6890427a1f51a3e7e1df"
 		},
 		{
+			"id" : "RAY::@6890427a1f51a3e7e1df"
+		},
+		{
 			"id" : "bitmap_image::@13473e476f6cc63e8539"
 		},
 		{
@@ -27,9 +30,6 @@
 		},
 		{
 			"id" : "pcg32::@b1ab0afe506e7a24c231"
-		},
-		{
-			"id" : "RAY::@6890427a1f51a3e7e1df"
 		},
 		{
 			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
