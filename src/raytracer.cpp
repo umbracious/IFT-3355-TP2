@@ -10,7 +10,7 @@ void Raytracer::render(const Scene& scene, Frame* output)
 
 	// @@@@@@ VOTRE CODE ICI
 	double FOVy_rads = deg2rad(scene.camera.fovy);
-	double plane_height = tan(FOVy_rads/2)*scene.camera.z_near*2;
+	double plane_height = tan(FOVy_rads/2)*2;
 	double plane_width = plane_height * scene.camera.aspect; // Assuming aspect ratio is width:height
 	double3 top_left_corner = scene.camera.center + scene.camera.up*(plane_height/2) 
 		+ cross(scene.camera.center, scene.camera.up)*(plane_width/2); // Left vector is cross product between up and center vectors
@@ -42,13 +42,17 @@ void Raytracer::render(const Scene& scene, Frame* output)
 				ray.origin = scene.camera.position;
 
 				// Lancez le rayon de manière uniformément aléatoire à l'intérieur du pixel dans la zone délimité par jitter_radius.
-				double3 pixel_pos{-scene.resolution[0]/2 + x + 0.5, scene.resolution[1]/2 - y - 0.5, 1}; // Pixel center position in camera space
+				double3 pixel_pos{-scene.resolution[0]/2 + x + 0.5, scene.resolution[1]/2 - y - 0.5, scene.camera.z_near}; // Pixel center position
 				pixel_pos += double3{-scene.jitter_radius + rand_double()*scene.jitter_radius*2, -scene.jitter_radius + rand_double()*scene.jitter_radius*2, 0}; // Apply jitter to pixel
-				// TODO: Scale to position in plane
-				// TODO: Transform pixel coordinate from camera space to world space
+				pixel_pos = {pixel_pos[0]/scene.resolution[0]*plane_width, pixel_pos[1]/scene.resolution[1]*plane_height, pixel_pos[2]}; // Stretch to plane
+				// TODO: Change coordinate system
 				ray.direction = normalize(pixel_pos-ray.origin); // Set ray direction (normalized)
+				double z_depth = scene.camera.z_far;
 
 				// Faites la moyenne des différentes couleurs obtenues suite à la récursion.
+				trace(scene, ray, ray_depth, &ray_color, &z_depth);
+				avg_ray_color += ray_color;
+				avg_z_depth += z_depth;
 			}
 
 			avg_z_depth = avg_z_depth / scene.samples_per_pixel;
@@ -99,8 +103,8 @@ void Raytracer::trace(const Scene& scene,
 		//
 		// Toutes les géométries sont des surfaces et non pas de volumes.
 
-		// *out_color = 
-		// *out_z_depth =
+		*out_color = shade(scene,hit);
+		*out_z_depth = hit.depth;
 	}
 }
 
