@@ -49,10 +49,14 @@ void Raytracer::render(const Scene& scene, Frame* output)
 				ray.origin = scene.camera.position;
 
 				// Lancez le rayon de manière uniformément aléatoire à l'intérieur du pixel dans la zone délimité par jitter_radius.
-				double3 pixel_pos{-scene.resolution[0]/2 + x + 0.5, scene.resolution[1]/2 - y - 0.5, scene.camera.z_near}; // Pixel center position
+				double3 pixel_pos{-scene.resolution[0]/2 + x + 0.5, scene.resolution[1]/2 - y - 0.5, length(scene.camera.center-scene.camera.position)}; // Pixel center position
 				pixel_pos += double3{-scene.jitter_radius + rand_double()*scene.jitter_radius*2, -scene.jitter_radius + rand_double()*scene.jitter_radius*2, 0}; // Apply jitter to pixel
 				pixel_pos = {pixel_pos[0]/scene.resolution[0]*vp_width, pixel_pos[1]/scene.resolution[1]*vp_height, pixel_pos[2]}; // Stretch to plane
 				
+				if (x<2 && y<2){
+					std::cout<<"p1: ["<<pixel_pos[0]<<","<<pixel_pos[1]<<","<<pixel_pos[2]<<"]";
+				}
+
 				// Basis change
 				double4x4 cam_to_world_matrix{
 					{right[0],up[0],forward[0],pos[0]},
@@ -60,10 +64,14 @@ void Raytracer::render(const Scene& scene, Frame* output)
 					{right[2],up[2],forward[2],pos[2]},
 					{0,0,0,1}};
 				double4x4 world_to_cam_matrix = inverse(cam_to_world_matrix);				
-				double4 tmp = mul(world_to_cam_matrix, {ray.direction[0],ray.direction[1],ray.direction[2],1});
+				double4 tmp = mul(world_to_cam_matrix, {pixel_pos[0],pixel_pos[1],pixel_pos[2],1});
 				pixel_pos = {tmp[0],tmp[1],tmp[2]};
 
+				
 				ray.direction = normalize(pixel_pos-ray.origin); // Set ray direction (normalized)
+				if (x<2 && y<2){
+					std::cout<<"p2: ["<<ray.direction[0]<<","<<ray.direction[1]<<","<<ray.direction[2]<<"]";
+				}
 
 				// Initiliaze ray depth
 				double z_depth = scene.camera.z_far;
