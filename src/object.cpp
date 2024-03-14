@@ -14,8 +14,51 @@ int rsign(double value, double v0, double v1) {
 bool Sphere::local_intersect(Ray ray, 
 							 double t_min, double t_max, 
 							 Intersection *hit) 
-{
-	return false;
+{	
+
+	// Interesction formula taken from: https://math.stackexchange.com/questions/1939423/calculate-if-vector-intersects-sphere
+	// Q = P - C = P because C = (0,0,0)
+	double a = length2(ray.direction);
+	double b = 2 * dot(ray.direction, ray.origin);
+	double c = length2(ray.origin) - radius*radius;
+	double discriminant = b*b - 4*a*c;
+
+	if (discriminant<0){ // No intersection
+		return false;
+	}
+
+	else if (discriminant == 0){ // 1 intersection point
+		// Quadratic formula
+		double t1 = (-b + sqrt(discriminant))/(2*a); 
+		double t2 = (-b - sqrt(discriminant))/(2*a);
+
+		// Set hit parameters
+		if (t1 > t_min && t1 < t_max){
+			hit->position = ray.origin + ray.direction*t1;
+			hit->depth = t1;
+			hit->normal = normalize(hit->position);
+		}
+
+		// Only do this if t1 fails as t1 always smaller than t2
+		else if (t2 > t_min && t1 < t_max){
+			hit->position = ray.origin + ray.direction*t2;
+			hit->depth = t2;
+			hit->normal = normalize(hit->position);
+		}
+
+		return true;
+	}
+
+	else{ // 2 intersection points
+		// Quadratic formula
+		double t = (-b + sqrt(discriminant))/(2*a);
+		if (t > t_min && t < t_max){
+			hit->position = ray.origin + ray.direction*t;
+			hit->depth = t;
+			hit->normal = normalize(hit->position);
+		}
+		return true;
+	}
 }
 
 // @@@@@@ VOTRE CODE ICI
