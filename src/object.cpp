@@ -120,7 +120,25 @@ bool Mesh::local_intersect(Ray ray,
 						   double t_min, double t_max, 
 						   Intersection* hit)
 {
-	return false;
+	bool hit_bool = false;
+	double min_dist = DBL_MAX;
+
+	// Loop through triangles and set the intersection depth to the nearest one
+	// See container.cpp
+	for (auto& triangle: triangles){
+		Intersection tmp;
+		if (intersect_triangle(ray, t_min, min_dist, triangle, &tmp)){
+			if (tmp.depth<min_dist){
+				min_dist = tmp.depth;
+				hit_bool = true;
+				*hit = tmp;
+			}
+		}
+	}
+
+	hit->depth = min_dist;
+	return hit_bool;
+
 }
 
 // @@@@@@ VOTRE CODE ICI
@@ -154,7 +172,60 @@ bool Mesh::intersect_triangle(Ray  ray,
 	// NOTE : hit.depth est la profondeur de l'intersection actuellement la plus proche,
 	// donc n'acceptez pas les intersections qui occurent plus loin que cette valeur.
 
-	return false;
+	// Source: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution.html
+
+	// Compute normal
+	double3 p0p1 = p1 - p0;
+	double3 p0p2 = p2 - p0;
+	double3 normal = cross(p0p1, p0p2);
+	double area2 = length(normal);
+
+	// Check if ray and plane are parallel
+	double n_dot_raydir = dot(normal, ray.direction);
+	if (fabs(n_dot_raydir) < EPSILON){
+		return false; // Parallel
+	}
+
+	// Calculate d and t
+	double d = -dot(normal, p0);
+	double t = -(dot(normal, ray.origin) + d) / n_dot_raydir;
+
+	// Check if triangle is behind ray
+	if (t<0) return false;
+
+	// Calculate intersection point
+	double3 P = ray.origin + t*ray.direction;
+
+	// Inside-Out tests
+	double3 C;
+
+	// Edge 0
+	double3 edge0 = p1 - p0;
+	double3 pp0 = P - p0;
+	C = cross(edge0, pp0);
+	if (dot(normal,C)<0) return false; // P is on the right side
+
+	// Edge 1
+	double3 edge1 = p2 - p1;
+	double3 pp1 = P - p1;
+	C = cross(edge1, pp1);
+	if (dot(normal,C)<0) return false; // P is on the right side
+
+	// Edge 2
+	double3 edge2 = p0 - p2;
+	double3 pp2 = P - p2;
+	C = cross(edge2, pp2);
+	if (dot(normal,C)<0) return false;
+
+	// Ray intersects with triangle
+	if (t > t_min && t < t_max){
+		hit->position = ray.origin + ray.direction*t;
+		hit->depth = t;
+		hit->normal = normal;
+		return true;
+	}
+
+	return false; // t out of range 
 }
 
 // @@@@@@ VOTRE CODE ICI

@@ -60,7 +60,7 @@ void Raytracer::render(const Scene& scene, Frame* output)
 					{right[2],up[2],forward[2],pos[2]},
 					{0,0,0,1}};
 				double4x4 world_to_cam_matrix = inverse(cam_to_world_matrix);				
-				double4 tmp = mul(world_to_cam_matrix, {ray.direction[0],ray.direction[0],ray.direction[0],1});
+				double4 tmp = mul(world_to_cam_matrix, {ray.direction[0],ray.direction[1],ray.direction[2],1});
 				pixel_pos = {tmp[0],tmp[1],tmp[2]};
 
 				ray.direction = normalize(pixel_pos-ray.origin); // Set ray direction (normalized)
