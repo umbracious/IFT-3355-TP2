@@ -1,7 +1,3 @@
 Implementation of raytracer in C++
 
-Build with CMake in Visual Studio or VSCode, results will be outputted to output foler.
-
-![alt text](https://github.com/umbracious/IFT-3355-TP2/blob/90d21e74218ccdbb21be08b8910b5195599863a1/color.png)
-
-
+Build with CMake in Visual Studio or VSCode, results will be outputted to output folder.
