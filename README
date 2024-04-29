@@ -1,4 +1,4 @@
-#Implementation of raytracer in C++
+Implementation of raytracer in C++
 
 Build with CMake in Visual Studio or VSCode, results will be outputted to output foler.
 
